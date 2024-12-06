@@ -7,7 +7,6 @@ import numpy as np
 import networkx as nx
 
 # ------------------- Load Data -------------------
-# Load the station data
 stations_file_path = 'London_Stations.csv'  # Path to the CSV file
 stations_data = pd.read_csv(stations_file_path)
 
@@ -21,8 +20,11 @@ stations = dict(zip(stations_data['Station'], zip(stations_data['Latitude'], sta
 connections_file_path = 'Station_Connections.csv'
 connections_data = pd.read_csv(connections_file_path)
 
+# Ensure column names are stripped of extra spaces
+connections_data.columns = connections_data.columns.str.strip()
+
 # Create a list of connections (edges between stations)
-connections = list(zip(connections_data['Source'], connections_data['Target']))
+connections = list(zip(connections_data['Source'], connections_data['Target'], connections_data['Line']))
 
 # ------------------- Haversine Function -------------------
 # Haversine formula to calculate the distance between two latitude/longitude points
@@ -43,12 +45,12 @@ def create_tube_graph(connections):
     G.add_nodes_from(stations)
 
     # Add edges with distances calculated using the Haversine formula
-    for station1, station2 in connections:
+    for station1, station2, line in connections:
         if station1 in stations and station2 in stations:
             lat1, lon1 = stations[station1]
             lat2, lon2 = stations[station2]
             distance = haversine(lat1, lon1, lat2, lon2)
-            G.add_edge(station1, station2, weight=distance)
+            G.add_edge(station1, station2, weight=distance, line=line)
 
     return G
 
@@ -194,10 +196,20 @@ def on_submit():
     # Find the shortest path and its length
     distance, path = dijkstra_shortest_path(G, source_station, target_station)
 
+    # Calculate the total distance
+    total_distance = distance
+
+    # Calculate the average time (in minutes) using the given speed (35 km/h)
+    speed_kmh = 35  # Average speed in km/h
+    total_time_minutes = (total_distance / speed_kmh) * 60  # Convert time to minutes
+
     # Format the result
     result = f"Shortest path from {source_station} to {target_station}:\n"
-    result += "\n".join([f"{path[i]} to {path[i+1]}" for i in range(len(path)-1)])
-    result += f"\nTotal distance: {distance:.2f} kilometers"
+    for i in range(len(path) - 1):
+        result += f"{path[i]} to {path[i + 1]} in {G[path[i]][path[i + 1]]['line']} Line\n"
+    
+    result += f"\nTotal distance: {total_distance:.2f} kilometers"
+    result += f"\nThe average time: {total_time_minutes:.2f} minutes"
 
     # Display the result in the text box
     result_text.config(state=tk.NORMAL)
@@ -214,3 +226,4 @@ zoom_out_button.pack(pady=5)
 
 # Start the Tkinter main loop
 root.mainloop()
+

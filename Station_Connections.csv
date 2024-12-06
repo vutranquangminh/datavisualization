@@ -1,77 +1,77 @@
-Source,Target
-Elephant & Castle,Lambeth North
-Lambeth North,Waterloo
-Waterloo,Embankment
-Embankment,Charing Cross
-Charing Cross,Piccadilly Circus
-Piccadilly Circus,Oxford Circus
-Oxford Circus,Regent's Park
-Regent's Park,Baker Street
-Baker Street,Marylebone
-Marylebone,Edgware Road
-Edgware Road,Paddington
-Lancaster Gate,Marble Arch
-Marble Arch,Bond Street
-Bond Street,Oxford Circus
-Oxford Circus,Tottenham Court Road
-Tottenham Court Road,Holborn
-Holborn,Chancery Lane
-Chancery Lane,St. Paul's
-St. Paul's,Liverpool Street
-Liverpool Street,Aldgate
-Aldgate,Tower Hill
-Tower Hill,Monument
-Monument,Cannon Street
-Cannon Street,Mansion House
-Mansion House,Blackfriars
-Blackfriars,Temple
-Temple,Embankment
-Embankment,Westminster
-Westminster,St. James's Park
-St. James's Park,Victoria
-Victoria,Sloane Square
-Sloane Square,South Kensington
-Whitechapel,Liverpool Street
-Liverpool Street,Farringdon
-Farringdon,Tottenham Court Road
-Tottenham Court Road,Bond Street
-Bond Street,Paddington
-Euston Square,King's Cross St. Pancras
-King's Cross St. Pancras,Farringdon
-Farringdon,Barbican
-Barbican,Moorgate
-Moorgate,Liverpool Street
-Liverpool Street,Aldgate East
-St. John's Wood,Baker Street
-Baker Street,Bond Street
-Bond Street,Green Park
-Green Park,Westminster
-Westminster,Waterloo
-Waterloo,Southwark
-Southwark,London Bridge
-South Kensington,Knightsbridge
-Knightsbridge,Hyde Park Corner
-Hyde Park Corner,Green Park
-Green Park,Piccadilly Circus
-Piccadilly Circus,Leicester Square
-Leicester Square,Covent Garden
-Covent Garden,Holborn
-Holborn,Russell Square
-Russell Square,King's Cross St. Pancras
-Stockwell,Vauxhall
-Vauxhall,Pimlico
-Pimlico,Victoria
-Victoria,Green Park
-Green Park,Oxford Circus
-Oxford Circus,Warren Street
-Warren Street,Euston
-Euston,King's Cross St. Pancras
-Stockwell,Oval
-Oval,Elephant & Castle
-Elephant & Castle,Borough
-Borough,London Bridge
-London Bridge,Bank
-Bank,Moorgate
-Moorgate,Old Street
-Old Street,Angel
-Angel,King's Cross St. Pancras
+Source,Target,Line
+Elephant & Castle,Lambeth North,Bakerloo
+Lambeth North,Waterloo,Bakerloo
+Waterloo,Embankment,Bakerloo
+Embankment,Charing Cross,Bakerloo
+Charing Cross,Piccadilly Circus,Bakerloo
+Piccadilly Circus,Oxford Circus,Bakerloo
+Oxford Circus,Regent's Park,Bakerloo
+Regent's Park,Baker Street,Bakerloo
+Baker Street,Marylebone,Bakerloo
+Marylebone,Edgware Road,Bakerloo
+Edgware Road,Paddington,Bakerloo
+Lancaster Gate,Marble Arch,Central
+Marble Arch,Bond Street,Central
+Bond Street,Oxford Circus,Central
+Oxford Circus,Tottenham Court Road,Central
+Tottenham Court Road,Holborn,Central
+Holborn,Chancery Lane,Central
+Chancery Lane,St. Paul's,Central
+St. Paul's,Liverpool Street,Central
+Liverpool Street,Aldgate,Circle
+Aldgate,Tower Hill,Circle
+Tower Hill,Monument,Circle
+Monument,Cannon Street,Circle
+Cannon Street,Mansion House,Circle
+Mansion House,Blackfriars,Circle
+Blackfriars,Temple,Circle
+Temple,Embankment,Circle
+Embankment,Westminster,Circle
+Westminster,St. James's Park,Circle
+St. James's Park,Victoria,Circle
+Victoria,Sloane Square,Circle
+Sloane Square,South Kensington,Circle
+Whitechapel,Liverpool Street,Elizabeth
+Liverpool Street,Farringdon,Elizabeth
+Farringdon,Tottenham Court Road,Elizabeth
+Tottenham Court Road,Bond Street,Elizabeth
+Bond Street,Paddington,Elizabeth
+Euston Square,King's Cross St. Pancras,Hammersmith and City
+King's Cross St. Pancras,Farringdon,Hammersmith and City
+Farringdon,Barbican,Hammersmith and City
+Barbican,Moorgate,Hammersmith and City
+Moorgate,Liverpool Street,Hammersmith and City
+Liverpool Street,Aldgate East,Hammersmith and City
+St. John's Wood,Baker Street,Jubilee
+Baker Street,Bond Street,Jubilee
+Bond Street,Green Park,Jubilee
+Green Park,Westminster,Jubilee
+Westminster,Waterloo,Jubilee
+Waterloo,Southwark,Jubilee
+Southwark,London Bridge,Jubilee
+South Kensington,Knightsbridge,Piccadilly
+Knightsbridge,Hyde Park Corner,Piccadilly
+Hyde Park Corner,Green Park,Piccadilly
+Green Park,Piccadilly Circus,Piccadilly
+Piccadilly Circus,Leicester Square,Piccadilly
+Leicester Square,Covent Garden,Piccadilly
+Covent Garden,Holborn,Piccadilly
+Holborn,Russell Square,Piccadilly
+Russell Square,King's Cross St. Pancras,Piccadilly
+Stockwell,Vauxhall,Victoria
+Vauxhall,Pimlico,Victoria
+Pimlico,Victoria,Victoria
+Victoria,Green Park,Victoria
+Green Park,Oxford Circus,Victoria
+Oxford Circus,Warren Street,Victoria
+Warren Street,Euston,Victoria
+Euston,King's Cross St. Pancras,Victoria
+Stockwell,Oval,Northern
+Oval,Elephant & Castle,Northern
+Elephant & Castle,Borough,Northern
+Borough,London Bridge,Northern
+London Bridge,Bank,Northern
+Bank,Moorgate,Northern
+Moorgate,Old Street,Northern
+Old Street,Angel,Northern
+Angel,King's Cross St. Pancras,Northern

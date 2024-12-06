@@ -3,10 +3,10 @@ from tkinter import messagebox
 from tkinter import scrolledtext
 from PIL import Image, ImageTk
 import pandas as pd
-import networkx as nx
 import numpy as np
+import networkx as nx
 
-# ------------------- Data Loading -------------------
+# ------------------- Load Data -------------------
 # Load the station data
 stations_file_path = 'London_Stations.csv'  # Path to the CSV file
 stations_data = pd.read_csv(stations_file_path)
@@ -16,6 +16,13 @@ stations_data.columns = stations_data.columns.str.strip()
 
 # Create a dictionary to map station names to their (latitude, longitude) pairs
 stations = dict(zip(stations_data['Station'], zip(stations_data['Latitude'], stations_data['Longitude'])))
+
+# Load the connections from the CSV file
+connections_file_path = 'Station_Connections.csv'
+connections_data = pd.read_csv(connections_file_path)
+
+# Create a list of connections (edges between stations)
+connections = list(zip(connections_data['Source'], connections_data['Target']))
 
 # ------------------- Haversine Function -------------------
 # Haversine formula to calculate the distance between two latitude/longitude points
@@ -27,16 +34,6 @@ def haversine(lat1, lon1, lat2, lon2):
     a = np.sin(dlat / 2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2)**2
     c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
     return R * c  # Return distance in kilometers
-
-# ------------------- Load Connections from CSV -------------------
-def load_connections_from_csv(csv_path):
-    # Load the connections CSV file using pandas
-    df = pd.read_csv(csv_path)
-    
-    # Convert the dataframe to a list of tuples
-    connections = list(zip(df['Source'], df['Target']))
-    
-    return connections
 
 # ------------------- Create Tube Graph -------------------
 def create_tube_graph(connections):
@@ -55,6 +52,9 @@ def create_tube_graph(connections):
 
     return G
 
+# Create the London Tube graph using the connections
+G = create_tube_graph(connections)
+
 # ------------------- Dijkstra's Algorithm -------------------
 def dijkstra_shortest_path(G, source, target):
     # Use Dijkstra's algorithm to find the shortest path from source to target
@@ -62,58 +62,86 @@ def dijkstra_shortest_path(G, source, target):
     return length, path
 
 # ------------------- Tkinter GUI -------------------
-# Create the main Tkinter window
 root = tk.Tk()
 root.title("London Tube Map")
 root.geometry("1000x1000")  # Adjusted window size to fit all elements
 
-# Load and display the image of the London Tube Map
+# Load the original high-quality image
 original_img = Image.open("London_Tube_Map.png")  # Ensure this image is in the same directory
-img = original_img.resize((980, 580))  # Resize the image to fit at the top
 
-# ------------------- Zoom Functionality -------------------
-zoom_factor = 1.0  # Initial zoom factor (1.0 means no zoom)
+# Initial zoom level (100%)
+zoom_level = 1.0
 
+# Function to zoom in
 def zoom_in():
-    global zoom_factor
-    zoom_factor *= 1.1  # Increase zoom factor by 10%
-    zoom_image()
+    global zoom_level, img_tk, img
+    zoom_level *= 1.1  # Increase zoom level by 10%
+
+    # Resize the image based on zoom level
+    img = original_img.resize((int(original_img.width * zoom_level), int(original_img.height * zoom_level)), Image.Resampling.LANCZOS)
+    
+    # Convert to Tkinter-compatible photo image
+    img_tk = ImageTk.PhotoImage(img)
+
+    # Redraw the image on canvas
+    canvas.create_image(0, 0, image=img_tk, anchor="nw")
+
+    # Update the scroll region
+    update_scroll_region()
 
 def zoom_out():
-    global zoom_factor
-    zoom_factor /= 1.1  # Decrease zoom factor by 10%
-    zoom_image()
+    global zoom_level, img_tk, img
+    zoom_level /= 1.1  # Decrease zoom level by 10%
 
-def zoom_image():
-    global img_tk
-    new_width = int(original_img.width * zoom_factor)
-    new_height = int(original_img.height * zoom_factor)
-    img_resized = original_img.resize((new_width, new_height), Image.LANCZOS)  # High-quality resampling
-    img_tk = ImageTk.PhotoImage(img_resized)  # Convert resized image to ImageTk
+    # Resize the image based on zoom level
+    img = original_img.resize((int(original_img.width * zoom_level), int(original_img.height * zoom_level)), Image.Resampling.LANCZOS)
+    
+    # Convert to Tkinter-compatible photo image
+    img_tk = ImageTk.PhotoImage(img)
 
-    # Update the image displayed on the canvas
-    canvas.itemconfig(image_id, image=img_tk)  # Update image without resizing the box
+    # Redraw the image on canvas
+    canvas.create_image(0, 0, image=img_tk, anchor="nw")
 
-# Top Section: Canvas for Image Display (Fixed Size Box)
-canvas = tk.Canvas(root, width=980, height=580)
-canvas.pack(pady=10)  # Add some padding around the image
+    # Update the scroll region
+    update_scroll_region()
 
-# Add the image to the canvas, but only once
+def update_scroll_region():
+    # Update the scrollable region based on the image size
+    canvas.config(scrollregion=canvas.bbox("all"))
+
+# Create a frame to hold the canvas and add scrollbars
+frame = tk.Frame(root)
+frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+# Add vertical and horizontal scrollbars
+vsb = tk.Scrollbar(frame, orient="vertical")
+hsb = tk.Scrollbar(frame, orient="horizontal")
+
+# Create a canvas widget
+canvas = tk.Canvas(frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+canvas.grid(row=0, column=0, sticky="nsew")
+
+# Configure the scrollbars
+vsb.config(command=canvas.yview)
+hsb.config(command=canvas.xview)
+
+# Pack the scrollbars
+vsb.grid(row=0, column=1, sticky="ns")
+hsb.grid(row=1, column=0, sticky="ew")
+
+# Initial display of the image on the canvas
+img = original_img.resize((int(original_img.width * zoom_level), int(original_img.height * zoom_level)), Image.Resampling.LANCZOS)
 img_tk = ImageTk.PhotoImage(img)
-image_id = canvas.create_image(0, 0, anchor="nw", image=img_tk)
+canvas.create_image(0, 0, image=img_tk, anchor="nw")
 
-# Zoom buttons
-zoom_in_button = tk.Button(root, text="Zoom In", command=zoom_in)
-zoom_in_button.pack(side=tk.LEFT, padx=10, pady=10)
+# Make the canvas expandable
+frame.grid_rowconfigure(0, weight=1)
+frame.grid_columnconfigure(0, weight=1)
 
-zoom_out_button = tk.Button(root, text="Zoom Out", command=zoom_out)
-zoom_out_button.pack(side=tk.LEFT, padx=10, pady=10)
+# Update the scrollable region when the window is resized
+update_scroll_region()
 
-# Load the connections from the CSV file
-connections = load_connections_from_csv('Station_Connections.csv')
-
-# Create the London Tube graph using the connections
-G = create_tube_graph(connections)
+# ------------------- Results and Input Section -------------------
 
 # Bottom Section: Split into two frames (Left: Results, Right: Inputs)
 bottom_frame = tk.Frame(root)
@@ -176,6 +204,13 @@ def on_submit():
     result_text.delete(1.0, tk.END)
     result_text.insert(tk.END, result)
     result_text.config(state=tk.DISABLED)
+
+# Zoom in and zoom out buttons
+zoom_in_button = tk.Button(right_frame, text="Zoom In", command=zoom_in)
+zoom_in_button.pack(pady=5)
+
+zoom_out_button = tk.Button(right_frame, text="Zoom Out", command=zoom_out)
+zoom_out_button.pack(pady=5)
 
 # Start the Tkinter main loop
 root.mainloop()

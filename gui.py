@@ -68,57 +68,46 @@ root.title("London Tube Map")
 root.geometry("1000x1000")  # Adjusted window size to fit all elements
 
 # Load and display the image of the London Tube Map
-img = Image.open("London_Tube_Map.png")  # Ensure this image is in the same directory
-img = img.resize((980, 580))  # Resize the image to fit at the top
-img_tk = ImageTk.PhotoImage(img)
+original_img = Image.open("London_Tube_Map.png")  # Ensure this image is in the same directory
+img = original_img.resize((980, 580))  # Resize the image to fit at the top
 
-# Image Zoom Settings
-zoom_factor = 1.0  # Initial zoom factor
-zoom_delta = 0.1  # Amount of zoom per action
+# ------------------- Zoom Functionality -------------------
+zoom_factor = 1.0  # Initial zoom factor (1.0 means no zoom)
 
-# ------------------- Zoom Functions -------------------
-# Zoom In function
 def zoom_in():
-    global img, img_tk, zoom_factor
-    zoom_factor += zoom_delta
-    new_width = int(img.width * zoom_factor)
-    new_height = int(img.height * zoom_factor)
-    img_resized = img.resize((new_width, new_height))
-    img_tk = ImageTk.PhotoImage(img_resized)
-    canvas.itemconfig(image_on_canvas, image=img_tk)
+    global zoom_factor
+    zoom_factor *= 1.1  # Increase zoom factor by 10%
+    zoom_image()
 
-# Zoom Out function
 def zoom_out():
-    global img, img_tk, zoom_factor
-    zoom_factor -= zoom_delta
-    if zoom_factor <= 0.1:  # Prevent zooming out too far
-        zoom_factor = 0.1
-    new_width = int(img.width * zoom_factor)
-    new_height = int(img.height * zoom_factor)
-    img_resized = img.resize((new_width, new_height))
-    img_tk = ImageTk.PhotoImage(img_resized)
-    canvas.itemconfig(image_on_canvas, image=img_tk)
+    global zoom_factor
+    zoom_factor /= 1.1  # Decrease zoom factor by 10%
+    zoom_image()
 
-# ------------------- Tkinter Canvas for Image -------------------
-canvas_frame = tk.Frame(root, width=980, height=580)
-canvas_frame.pack(pady=10)
+def zoom_image():
+    global img_tk
+    new_width = int(original_img.width * zoom_factor)
+    new_height = int(original_img.height * zoom_factor)
+    img_resized = original_img.resize((new_width, new_height), Image.LANCZOS)  # High-quality resampling
+    img_tk = ImageTk.PhotoImage(img_resized)  # Convert resized image to ImageTk
 
-# Create a canvas inside the frame to hold the image
-canvas = tk.Canvas(canvas_frame, width=980, height=580)
-canvas.pack()
+    # Update the image displayed on the canvas
+    canvas.itemconfig(image_id, image=img_tk)  # Update image without resizing the box
 
-# Display the image on the canvas
-image_on_canvas = canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
+# Top Section: Canvas for Image Display (Fixed Size Box)
+canvas = tk.Canvas(root, width=980, height=580)
+canvas.pack(pady=10)  # Add some padding around the image
 
-# Zoom with Mouse Wheel
-def zoom_with_wheel(event):
-    if event.delta > 0:  # Zoom in
-        zoom_in()
-    else:  # Zoom out
-        zoom_out()
+# Add the image to the canvas, but only once
+img_tk = ImageTk.PhotoImage(img)
+image_id = canvas.create_image(0, 0, anchor="nw", image=img_tk)
 
-# Bind mouse wheel for zoom functionality
-root.bind("<MouseWheel>", zoom_with_wheel)
+# Zoom buttons
+zoom_in_button = tk.Button(root, text="Zoom In", command=zoom_in)
+zoom_in_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+zoom_out_button = tk.Button(root, text="Zoom Out", command=zoom_out)
+zoom_out_button.pack(side=tk.LEFT, padx=10, pady=10)
 
 # Load the connections from the CSV file
 connections = load_connections_from_csv('Station_Connections.csv')
@@ -187,16 +176,6 @@ def on_submit():
     result_text.delete(1.0, tk.END)
     result_text.insert(tk.END, result)
     result_text.config(state=tk.DISABLED)
-
-# Add Zoom Buttons
-zoom_buttons_frame = tk.Frame(root)
-zoom_buttons_frame.pack(pady=10)
-
-zoom_in_button = tk.Button(zoom_buttons_frame, text="Zoom In", command=zoom_in)
-zoom_in_button.pack(side=tk.LEFT, padx=5)
-
-zoom_out_button = tk.Button(zoom_buttons_frame, text="Zoom Out", command=zoom_out)
-zoom_out_button.pack(side=tk.LEFT, padx=5)
 
 # Start the Tkinter main loop
 root.mainloop()

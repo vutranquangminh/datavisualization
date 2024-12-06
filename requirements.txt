@@ -2,6 +2,3 @@ numpy
 pandas
 networkx
 matplotlib
-tkinter
-tkinter.scrolledtext
-tkinter.tkk

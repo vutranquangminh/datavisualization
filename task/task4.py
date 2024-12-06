@@ -7,27 +7,18 @@ import numpy as np
 import networkx as nx
 
 # ------------------- Load Data -------------------
-stations_file_path = 'London_Stations.csv'  # Path to the CSV file
+stations_file_path = './csv/station_coordinates.csv'  # Path to the CSV file
 stations_data = pd.read_csv(stations_file_path)
-
-# Ensure column names are stripped of extra spaces
 stations_data.columns = stations_data.columns.str.strip()
-
-# Create a dictionary to map station names to their (latitude, longitude) pairs
 stations = dict(zip(stations_data['Station'], zip(stations_data['Latitude'], stations_data['Longitude'])))
 
 # Load the connections from the CSV file
-connections_file_path = 'Station_Connections.csv'
+connections_file_path = './csv/station_connections.csv'
 connections_data = pd.read_csv(connections_file_path)
-
-# Ensure column names are stripped of extra spaces
 connections_data.columns = connections_data.columns.str.strip()
-
-# Create a list of connections (edges between stations)
 connections = list(zip(connections_data['Source'], connections_data['Target'], connections_data['Line']))
 
 # ------------------- Haversine Function -------------------
-# Haversine formula to calculate the distance between two latitude/longitude points
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371  # Earth radius in kilometers
     lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])  # Convert to radians
@@ -35,16 +26,12 @@ def haversine(lat1, lon1, lat2, lon2):
     dlon = lon2 - lon1
     a = np.sin(dlat / 2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2)**2
     c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
-    return R * c  # Return distance in kilometers
+    return R * c
 
 # ------------------- Create Tube Graph -------------------
 def create_tube_graph(connections):
     G = nx.Graph()
-
-    # Add nodes to the graph (stations with coordinates)
     G.add_nodes_from(stations)
-
-    # Add edges with distances calculated using the Haversine formula
     for station1, station2, line in connections:
         if station1 in stations and station2 in stations:
             lat1, lon1 = stations[station1]
@@ -53,62 +40,40 @@ def create_tube_graph(connections):
             G.add_edge(station1, station2, weight=distance, line=line)
 
     return G
-
-# Create the London Tube graph using the connections
 G = create_tube_graph(connections)
 
 # ------------------- Dijkstra's Algorithm -------------------
 def dijkstra_shortest_path(G, source, target):
-    # Use Dijkstra's algorithm to find the shortest path from source to target
     length, path = nx.single_source_dijkstra(G, source, target)
     return length, path
 
 # ------------------- Tkinter GUI -------------------
 root = tk.Tk()
 root.title("London Tube Map")
-root.geometry("1000x1000")  # Adjusted window size to fit all elements
+root.geometry("1000x800")
+root.iconbitmap("./picture/london_underground_logo.ico")
 
-# Load the original high-quality image
-original_img = Image.open("London_Tube_Map.png")  # Ensure this image is in the same directory
-
-# Initial zoom level (100%)
+original_img = Image.open("./picture/london_map.png")
 zoom_level = 1.0
 
 # Function to zoom in
 def zoom_in():
     global zoom_level, img_tk, img
-    zoom_level *= 1.1  # Increase zoom level by 10%
-
-    # Resize the image based on zoom level
+    zoom_level *= 1.1
     img = original_img.resize((int(original_img.width * zoom_level), int(original_img.height * zoom_level)), Image.Resampling.LANCZOS)
-    
-    # Convert to Tkinter-compatible photo image
     img_tk = ImageTk.PhotoImage(img)
-
-    # Redraw the image on canvas
     canvas.create_image(0, 0, image=img_tk, anchor="nw")
-
-    # Update the scroll region
     update_scroll_region()
 
 def zoom_out():
     global zoom_level, img_tk, img
-    zoom_level /= 1.1  # Decrease zoom level by 10%
-
-    # Resize the image based on zoom level
+    zoom_level /= 1.1
     img = original_img.resize((int(original_img.width * zoom_level), int(original_img.height * zoom_level)), Image.Resampling.LANCZOS)
-    
-    # Convert to Tkinter-compatible photo image
     img_tk = ImageTk.PhotoImage(img)
-
-    # Redraw the image on canvas
     canvas.create_image(0, 0, image=img_tk, anchor="nw")
-
-    # Update the scroll region
     update_scroll_region()
 
 def update_scroll_region():
-    # Update the scrollable region based on the image size
     canvas.config(scrollregion=canvas.bbox("all"))
 
 # Create a frame to hold the canvas and add scrollbars
@@ -144,7 +109,6 @@ frame.grid_columnconfigure(0, weight=1)
 update_scroll_region()
 
 # ------------------- Results and Input Section -------------------
-
 # Bottom Section: Split into two frames (Left: Results, Right: Inputs)
 bottom_frame = tk.Frame(root)
 bottom_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -156,12 +120,22 @@ left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10)
 result_label = tk.Label(left_frame, text="Results", font=("Arial", 12, "bold"))
 result_label.pack(anchor="w", pady=5)
 
-result_text = scrolledtext.ScrolledText(left_frame, width=40, height=15, wrap=tk.WORD, state=tk.DISABLED)
+result_text = scrolledtext.ScrolledText(left_frame, width=40, height=10, wrap=tk.WORD, state=tk.DISABLED,font=("Arial", 15))
 result_text.pack(fill=tk.BOTH, expand=True)
 
-# Right Frame: Inputs (Source, Target, Submit Button)
+# Right Frame: Inputs (Source, Target, Submit Button, Zoom in Button, Zoom out Button)
 right_frame = tk.Frame(bottom_frame)
 right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10)
+
+# Zoom in and zoom out buttons (arranged horizontally at the top)
+zoom_frame = tk.Frame(right_frame)
+zoom_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
+
+zoom_in_button = tk.Button(zoom_frame, text="Zoom In", command=zoom_in)
+zoom_in_button.pack(side=tk.LEFT, padx=5)
+
+zoom_out_button = tk.Button(zoom_frame, text="Zoom Out", command=zoom_out)
+zoom_out_button.pack(side=tk.LEFT, padx=5)
 
 source_label = tk.Label(right_frame, text="Source Station", font=("Arial", 12, "bold"))
 source_label.pack(anchor="w", pady=5)
@@ -217,13 +191,4 @@ def on_submit():
     result_text.insert(tk.END, result)
     result_text.config(state=tk.DISABLED)
 
-# Zoom in and zoom out buttons
-zoom_in_button = tk.Button(right_frame, text="Zoom In", command=zoom_in)
-zoom_in_button.pack(pady=5)
-
-zoom_out_button = tk.Button(right_frame, text="Zoom Out", command=zoom_out)
-zoom_out_button.pack(pady=5)
-
-# Start the Tkinter main loop
 root.mainloop()
-

@@ -154,7 +154,7 @@ submit_button.pack(pady=10)
 
 # Function to handle the submit action
 def on_submit():
-    source_station = source_entry.get().strip().title()  # Capitalize to handle case-insensitive input
+    source_station = source_entry.get().strip().title()
     target_station = target_entry.get().strip().title()
 
     # Check if both fields are filled

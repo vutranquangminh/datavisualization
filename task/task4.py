@@ -54,7 +54,7 @@ root.geometry("1000x800")
 root.iconbitmap("./picture/london_underground_logo.ico")
 
 original_img = Image.open("./picture/london_map.png")
-zoom_level = 1.0
+zoom_level = 0.3
 
 # Function to zoom in
 def zoom_in():
